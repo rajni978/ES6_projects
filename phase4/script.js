@@ -1,32 +1,27 @@
 let input = document.getElementById("input");
 let output = document.getElementById("output");
 
-const key = "AIzaSyCAujF9O_G0-TMRST0Kd47GW5l5x9KihOo";
-
 async function callGemini(prompt) {
-    try{
+    try {
         output.textContent = "Loading...";
 
-
-        let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
+        let res = await fetch("http://localhost:3000/api/gemini", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
-            body:JSON.stringify({
-                contents:[
-                    {
-                        parts:[{text:prompt}]
-                    }
-                ]
+            body: JSON.stringify({
+                prompt: prompt
             })
         });
-        let data  = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
-        output.textContent = text;
-    }catch(error) {
-        output.textContent = "Error:"+ error.message;
-       
+
+        let data = await res.json();
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        output.textContent = text || "No response";
+
+    } catch (error) {
+        output.textContent = "Something went wrong";
     }
 }
 
@@ -46,6 +41,6 @@ function ideas() {
 }
 
 function define() {
-    let prompt = "Explain in some  line  simple sentence using plain text only:\n" + input.value;
+    let prompt = "Explain in some line simple sentence using plain text only:\n" + input.value;
     callGemini(prompt);
 }

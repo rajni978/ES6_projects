@@ -2,29 +2,19 @@ let userInput = document.getElementById("input");
 let btn = document.getElementById("btn");
 let result = document.getElementById("result");
 
-let key = "AIzaSyAZLWtvPfUTl0ZBkFjIiqdXy889uL_5aPg";
-
-
-btn.addEventListener("click", async function() {
+btn.addEventListener("click", async function () {
     let topic = userInput.value;
 
-    result.innerText = "loading...";
+    result.innerText = "Loading...";
 
     try {
-        let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+        let res = await fetch("http://localhost:3000/api/gemini", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `Give me 1 simple question and its answer about ${topic}.
-Format:
-Question: ...
-Answer: ...`
-                    }]
-                }]
+                prompt: `Generate one simple quiz question on: ${topic}`
             })
         });
 
@@ -34,13 +24,14 @@ Answer: ...`
 
         let data = await res.json();
 
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        result.innerText = text || "No question generated. Try a different topic! 😅";
-        console.log(res.status);
+        result.innerText =
+            text || "No question generated. Try a different topic! 😅";
 
     } catch (err) {
         console.log(err);
-        result.innerText = "Oops! Something went wrong. Check your connection and try again! 🔄";
+        result.innerText =
+            "Oops! Something went wrong. Check your connection and try again! 🔄";
     }
 });
