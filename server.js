@@ -5,14 +5,15 @@ import fetch from "node-fetch";
 
 dotenv.config();
 
-const app = express();
+const app = express();   // ✅ THIS WAS MISSING
 
-app.use(cors());          // ✅ MUST be here
+app.use(cors());
 app.use(express.json());
 
 app.post("/api/gemini", async (req, res) => {
   try {
     const prompt = req.body.prompt;
+    console.log("Prompt received:", prompt);
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_KEY}`,
@@ -27,11 +28,20 @@ app.post("/api/gemini", async (req, res) => {
       }
     );
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Gemini API Error:", errorText);
+      return res.status(500).json({ error: "Gemini API failed" });
+    }
+
     const data = await response.json();
+    console.log("Gemini response:", data);
+
     res.json(data);
 
   } catch (err) {
-    res.status(500).json({ error: "Error" });
+    console.log("Server error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
